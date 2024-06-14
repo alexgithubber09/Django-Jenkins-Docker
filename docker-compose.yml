@@ -4,3 +4,16 @@ services:
     image: praneethsvs/django-app:latest
     ports:
       - 8000:8000
+    volumes:
+      - /opt/app:/app
+    container_name: django
+    networks:
+      - django
+    restart: unless-stopped
+
+networks:
+  django: bridge
+
+
+
+
