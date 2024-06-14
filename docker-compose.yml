@@ -7,13 +7,7 @@ services:
     volumes:
       - /opt/app:/app
     container_name: django
-    networks:
-      - django
     restart: unless-stopped
-
-networks:
-  django: 
-    driver: bridge
 
 
 
