@@ -5,7 +5,7 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - /opt/app:/app
+      - /app:/opt/app
     container_name: django
     restart: unless-stopped
 
