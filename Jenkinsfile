@@ -33,5 +33,13 @@ pipeline {
                 
             }
         }
+
+        stage('Run Docker container on remote hosts') {
+             
+            steps {
+                sh "docker -H ssh://jenkins@192.168.43.187 compose up -d"
+ 
+            }
+        }
     }
 }
