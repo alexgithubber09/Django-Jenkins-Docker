@@ -1,3 +1,4 @@
 #!/bin/bash
 
-docker logs -f django > application.log
+mkdir -p /opt/app
+docker logs -f django > /opt/app/application.log
