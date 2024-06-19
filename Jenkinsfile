@@ -38,7 +38,7 @@ pipeline {
             steps {
                 echo "Gathering logs"
                 sh "mkdir -p /opt/app"
-                sh "docker logs -f django > /opt/app/application.log"
+                sh "docker logs -f django > /opt/app/application.log &"
            }
         }
     }
