@@ -6,6 +6,7 @@ services:
       - TZ=Europe/Minsk
     ports:
       - 8000:8000
+    user: "0"
     volumes:
       - /app:/opt/app
     container_name: django
