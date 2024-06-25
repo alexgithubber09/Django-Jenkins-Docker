@@ -33,13 +33,5 @@ pipeline {
                 
             }
         }
-        
-        stage("Gathering logs"){
-            steps {
-                echo "Gathering logs"
-                sh "mkdir -p /opt/app"
-                sh "docker logs -f django > /opt/app/application.log &"
-           }
-        }
     }
 }
