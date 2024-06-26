@@ -14,7 +14,6 @@ pipeline {
                 sh "docker build -t django-app ."
             }
         }
-        /*
         stage("Push to Docker Hub"){
             steps {
                 echo "Pushing the image to docker hub"
@@ -25,7 +24,6 @@ pipeline {
                 }
             }
         }
-        */
         stage("Deploy"){
             steps {
                 echo "Deploying"
