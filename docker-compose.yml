@@ -6,8 +6,6 @@ services:
       - TZ=Europe/Minsk
     ports:
       - 8000:8000
-    volumes:
-      - /opt/app:/app/backend
     container_name: django
     networks:
       - django
