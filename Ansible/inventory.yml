@@ -1,0 +1,35 @@
+jenkins:
+  hosts:
+    178.154.206.70:
+  vars:
+    ansible_user: test
+    ansible_ssh_password: "{{ ansible_ssh_password }}"
+    ansible_become_pass: "{{ ansible_become_pass }}"
+
+
+agent:
+  hosts:
+    158.160.49.198:
+  vars:
+    ansible_user: test
+    ansible_ssh_password: "{{ ansible_ssh_password }}"
+    ansible_become_pass: "{{ ansible_become_pass }}"
+
+
+elk:
+  hosts:
+    158.160.101.250:
+  vars:
+    ansible_user: test
+    ansible_ssh_password: "{{ ansible_ssh_password }}"
+    ansible_become_pass: "{{ ansible_become_pass }}"
+
+
+prometheus:
+  hosts:
+    51.250.88.119:
+  vars:
+    ansible_user: test
+    ansible_ssh_password: "{{ ansible_ssh_password }}"
+    ansible_become_pass: "{{ ansible_become_pass }}"
+

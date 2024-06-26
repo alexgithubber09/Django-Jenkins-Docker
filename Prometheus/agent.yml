@@ -1,0 +1,16 @@
+groups:
+- name: agent
+  rules:
+
+
+  - alert: Disk usage
+    expr: floor(100 - node_filesystem_free_bytes{instance="10.19.32.136:9100"} / node_filesystem_size_bytes{instance="10.19.32.136:9100"} * 100) > 20 
+    for: 20s
+    labels:
+      priority: "critical"
+      severity: "critical"
+      environment: "Prod"
+    annotations:
+      summary: "Disk usage {{ $value }}%"
+      description: "Заканчивается место в {{ $labels.mountpoint }} на {{ $labels.instance }}. Свободного места осталось {{ $value }}%. Требует непосредственного вмешательства."
+

@@ -1,0 +1,92 @@
+---
+- hosts: elk
+  remote_user: test
+  become: true
+  vars_files: cred.yml
+  tasks:
+    - name: install yum-utils
+      ansible.builtin.yum:
+        name:
+          - yum-utils
+        state: present
+
+    - name: Add repo
+      ansible.builtin.command: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+    - name: install docker
+      ansible.builtin.yum:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Ensure systemd daemon reloaded
+      command: systemctl daemon-reload
+
+    - name: Ensure Docker service is enabled and started
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add the user 'test' to the group 'docker'
+      ansible.builtin.user:
+        name: test
+        groups: docker
+        append: yes
+
+    - name: Change file ownership, group and permissions
+      ansible.builtin.file:
+        path: /var/run/docker.sock
+        owner: root
+        group: docker
+        mode: '0666'
+          
+    - name: Copy docker compose ELK
+      ansible.builtin.copy:
+        src: /home/test/elk
+        dest: /opt/
+        mode: preserve
+
+    - name: chmod entrypoint.sh
+      ansible.builtin.file:
+        path: /opt/elk/setup/entrypoint.sh
+        mode: '0755'
+
+    - name: chmod lib.sh
+      ansible.builtin.file:
+        path: /opt/elk/setup/lib.sh
+        mode: '0755'
+
+    - name: Run command "docker compose up setup"
+      ansible.builtin.command:
+        chdir: /opt/elk
+        cmd: docker compose up setup
+
+
+    - name: Run command "docker compose up -d"
+      ansible.builtin.command:
+        chdir: /opt/elk
+        cmd: docker compose up -d
+
+    - name: Open ports 5601
+      ansible.builtin.command:
+        cmd: firewall-cmd --zone=public --add-port=5601/tcp --permanent
+
+    - name: Open ports 9200
+      ansible.builtin.command:
+        cmd: firewall-cmd --zone=public --add-port=9200/tcp --permanent
+
+    - name: Open ports 5044
+      ansible.builtin.command:
+        cmd: firewall-cmd --zone=public --add-port=5044/tcp --permanent
+
+    - name: Reload firewall
+      ansible.builtin.command:
+        cmd: firewall-cmd --reload
+
+
+

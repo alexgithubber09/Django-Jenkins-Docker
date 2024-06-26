@@ -1,0 +1,88 @@
+---
+- hosts: jenkins
+  remote_user: test
+  become: true
+  vars_files: cred.yml
+  
+  tasks:
+    
+    - name: Add jenkins repository
+      get_url:
+        url: https://pkg.jenkins.io/redhat/jenkins.repo
+        dest: /etc/yum.repos.d/jenkins.repo
+   
+    - name: Import gpg key Jenkins
+      ansible.builtin.rpm_key:
+        state: present  
+        key: https://pkg.jenkins.io/redhat/jenkins.io-2023.key
+
+    - name: install epel-release
+      ansible.builtin.yum:
+        name:
+          - epel-release
+        state: present
+
+    - name: install fontconfig, java, git and jenkins
+      ansible.builtin.dnf:
+        name:
+          - fontconfig
+          - java-17-openjdk
+          - git
+          - jenkins
+        state: present
+
+    - name: Jenkins start and enable
+      service:
+        name: jenkins
+        state: started
+        enabled: yes
+
+    - name: Open ports 8080
+      ansible.builtin.command:
+        cmd: firewall-cmd --zone=public --add-port=8080/tcp --permanent
+
+    - name: Reload firewall
+      ansible.builtin.command:
+        cmd: firewall-cmd --reload
+
+    - name: install yum-utils
+      ansible.builtin.yum:
+        name:
+          - yum-utils
+        state: present
+
+    - name: Add repo
+      ansible.builtin.command: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+    - name: install docker
+      ansible.builtin.yum:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Ensure systemd daemon reloaded
+      command: systemctl daemon-reload
+
+    - name: Ensure Docker service is enabled and started
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add the user 'test' to the group 'docker'
+      ansible.builtin.user:
+        name: test
+        groups: docker
+        append: yes
+
+    - name: Change file ownership, group and permissions
+      ansible.builtin.file:
+        path: /var/run/docker.sock
+        owner: root
+        group: docker
+        mode: '0666'
+

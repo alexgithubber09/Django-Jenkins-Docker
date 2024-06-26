@@ -1,0 +1,129 @@
+---
+- hosts: prometheus
+  remote_user: test
+  become: true
+  vars_files: cred.yml
+  tasks:
+    - name: Download Prometheus
+      ansible.builtin.unarchive:
+        src: https://github.com/prometheus/prometheus/releases/download/v2.53.0/prometheus-2.53.0.linux-amd64.tar.gz
+        dest: /home/test/
+        remote_src: yes
+
+    - name: Create group prometheus
+      ansible.builtin.group:
+        name: prometheus
+        state: present
+        system: true
+
+    - name: Create system user prometheus
+      ansible.builtin.user:
+        name: prometheus
+        group: prometheus
+        system: true
+ 
+    - name: Copy prometheus to /usr/bin/
+      ansible.builtin.copy:
+        src: /home/test/prometheus-2.53.0.linux-amd64/prometheus
+        dest: /usr/bin/
+        owner: prometheus
+        group: prometheus
+        remote_src: true
+        mode: 755
+
+    - name: Create /etc/prometheus/data recursively
+      ansible.builtin.file:
+        path: /etc/prometheus/data
+        owner: prometheus
+        group: prometheus
+        state: directory
+        recurse: yes
+
+    - name: Copy prometheus.yml to /etc/prometheus
+      ansible.builtin.copy:
+        src: /home/test/prometheus.yml
+        dest: /etc/prometheus/
+        owner: prometheus
+        group: prometheus
+
+    - name: Copy agent.yml to /etc/prometheus
+      ansible.builtin.copy:
+        src: /home/test/agent.yml
+        dest: /etc/prometheus/
+        owner: prometheus
+        group: prometheus
+      
+    - name: Copy prometheus.service to /etc/systemd/system
+      ansible.builtin.copy:
+        src: /home/test/prometheus.service
+        dest: /etc/systemd/system
+
+    - name: System daemon-reload and started prometheus
+      ansible.builtin.systemd_service:
+        state: started
+        name: prometheus.service
+        daemon_reload: true
+        enabled: true
+
+    - name: install yum-utils
+      ansible.builtin.yum:
+        name:
+          - yum-utils
+        state: present
+
+    - name: Add repo
+      ansible.builtin.command: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+    - name: install docker
+      ansible.builtin.yum:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Ensure systemd daemon reloaded
+      command: systemctl daemon-reload
+
+    - name: Ensure Docker service is enabled and started
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add the user 'test' to the group 'docker'
+      ansible.builtin.user:
+        name: test
+        groups: docker
+        append: yes
+
+    - name: Change file ownership, group and permissions
+      ansible.builtin.file:
+        path: /var/run/docker.sock
+        owner: root
+        group: docker
+        mode: '0666'
+
+    - name: Copy docker compose grafana
+      ansible.builtin.copy:
+        src: /home/test/grafana
+        dest: /opt
+
+    - name: Run command "docker compose up -d"
+      ansible.builtin.command:
+        chdir: /opt/grafana
+        cmd: docker compose up -d
+
+    - name: Open ports 3000
+      ansible.builtin.command:
+        cmd: firewall-cmd --zone=public --add-port=3000/tcp --permanent
+
+    - name: Open ports 9090
+      ansible.builtin.command:
+        cmd: firewall-cmd --zone=public --add-port=9090/tcp --permanent
+
+    - name: Reload firewall
+      ansible.builtin.command:
+        cmd: firewall-cmd --reload

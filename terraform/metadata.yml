@@ -1,0 +1,11 @@
+#cloud-config
+datasource:
+ Ec2:
+  strict_id: false
+ssh_pwauth: no
+users:
+- name: test
+  sudo: ALL=(ALL) NOPASSWD:ALL
+  shell: /bin/bash
+  ssh_authorized_keys:
+  - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIYxOS7KweKxS12mRB+mCbs7kkJw+oSzQe0BGSxEEl1f test@localhost.localdomain
