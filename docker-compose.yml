@@ -11,7 +11,7 @@ services:
       - django
     restart: unless-stopped
     volumes:
-      - /home/test/Django-Jenkins-Docker:/app/backend
+      - ./:/app/backend
 
 networks:
   django:
