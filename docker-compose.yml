@@ -10,8 +10,6 @@ services:
     networks:
       - django
     restart: unless-stopped
-    volumes:
-      - ./:/app/backend
 
 networks:
   django:
