@@ -14,7 +14,7 @@ pipeline {
                 sh "docker build -t django-app ."
             }
         }
-        stage("Push to DockerHub"){
+        stage("Push to Docker Hub"){
             steps {
                 echo "Pushing the image to docker hub"
                 withCredentials([usernamePassword(credentialsId:"dockerHub",passwordVariable:"dockerHubPass",usernameVariable:"dockerHubUser")]){
