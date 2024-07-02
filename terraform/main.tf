@@ -11,7 +11,6 @@ provider "yandex" {
   zone      = "ru-central1-a"
   folder_id = "b1gs9jgeem3h51v6d944"
   cloud_id = "b1gs8eojfi8f00fptsd1"
-  token = "y0_AgAAAAB1ZWDpAATuwQAAAAEHyvnJAAAECCvCQTlNWbSMUrq6CBiqYGZRjw"
 }
 
 resource "yandex_compute_disk" "boot-disk-1" {
